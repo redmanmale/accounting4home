@@ -1,0 +1,90 @@
+{
+    "general": {
+        "last_id": 100500,
+        "db_path": "G:\\Downloads\\sms.db",
+        "sheet_path": "G:\\Documents\\accounting.sample.xlsx",
+        "sheet_num": 1,
+        "sheet_row": 1
+    },
+    "types": [
+        {
+            "id": 1,
+            "name": "buy",
+            "pattern": [
+                "Pokupka"
+            ],
+            "begin": "Pokupka",
+            "end": ".Dostupno"
+        },
+        {
+            "id": 2,
+            "name": "salary",
+            "pattern": [
+            ]
+        },
+        {
+            "id": 3,
+            "name": "info",
+            "pattern": [
+            ]
+        },
+        {
+            "id": 4,
+            "name": "no-cash in",
+            "pattern": [
+            ]
+        },
+        {
+            "id": 5,
+            "name": "no-cash out",
+            "pattern": [
+            ]
+        },
+        {
+            "id": 6,
+            "name": "cash in",
+            "pattern": [
+            ]
+        },
+        {
+            "id": 7,
+            "name": "cash out",
+            "pattern": [
+            ]
+        },
+        {
+            "id": 8,
+            "name": "no-cash in transfer",
+            "pattern": [
+            ]
+        },
+        {
+            "id": 9,
+            "name": "no-cash out transfer",
+            "pattern": [
+            ]
+        },
+        {
+            "id": 10,
+            "name": "reject",
+            "pattern": [
+            ]
+        },
+        {
+            "id": 11,
+            "name": "spam",
+            "pattern": [
+            ]
+        }
+    ],
+    "categories": {
+        "WALLMART.INC": {
+            "name": "stuff",
+            "comment": "Wallmart"
+        },
+        "GitHub payment": {
+            "name": "services",
+            "comment": "GH"
+        }
+    }
+}
