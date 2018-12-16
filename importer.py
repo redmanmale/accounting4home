@@ -5,6 +5,7 @@ from sqlite3 import Error
 from time import localtime
 
 import openpyxl as openpyxl
+import regex
 
 
 class LogEntry:
@@ -35,7 +36,7 @@ def select_entries(conn, last_id):
     last_id_param = (last_id,)
 
     cur = conn.cursor()
-    cur.execute("SELECT _id, date, body FROM sms WHERE _id > ? and thread_id = 3 order by _id desc", last_id_param)
+    cur.execute("SELECT _id, date, body FROM sms WHERE _id > ? and thread_id = 117 order by _id desc", last_id_param)
 
     rows = cur.fetchall()
 
@@ -68,10 +69,7 @@ def process_entries(config, entries):
         if entry.op_type is None:
             print(entry.op_type, entry.id, entry.date, entry.body)
         elif entry.op_type is 1:
-            if entry.cat_name != '':
-                entries_to_process.append(entry)
-            else:
-                print(entry.category + ': ' + str(entry.sum))
+            entries_to_process.append(entry)
 
     if len(entries_to_process) > 0:
         write_entries_to_file(config, entries_to_process)
@@ -83,23 +81,19 @@ def process(entry, config):
             if pattern in entry.body:
                 entry.op_type = type_def["id"]
                 if entry.op_type == 1:
-                    process_buy_entry(entry, type_def["begin"], type_def["end"], config["categories"])
+                    process_buy_entry(entry, config["categories"])
+                else:
+                    print(str(entry.date) + ": " + entry.body)
 
 
-def process_buy_entry(entry, begin, end, categories):
-    parts = entry.body.split(';')
-    if len(parts) != 0:
-        b = str.find(parts[0], begin) + len(begin) + 1
-        e = len(parts[0]) - 4  # TODO: Support different currencies
-        entry.sum = float((parts[0][b:e]).replace(',', '.').replace(' ', ''))
+def process_buy_entry(entry, categories):
+    parts = regex.match(r'.*\.\s\p{L}+\s([\d\.]*)\s\p{L}+\.\s(.*)\.\s\w+\s([\d\.]*)\s\w+\.\s(.*)', entry.body)
+    entry.sum = float(parts.captures(1)[0])
+    entry.category = parts.captures(2)[0]
 
-        e = str.find(parts[3], end)
-        entry.category = parts[3][:e]
-        if entry.category in categories:
-            entry.cat_name = categories[entry.category]["name"]
-            entry.cat_comment = categories[entry.category]["comment"]
-    else:
-        print(parts)
+    if entry.category in categories:
+        entry.cat_name = categories[entry.category]["name"]
+        entry.cat_comment = categories[entry.category]["comment"]
 
 
 def write_entries_to_file(config, entries):
@@ -120,8 +114,11 @@ def write_entries_to_file(config, entries):
 def write_entry_to_file(sheet, max_row, entry):
     sheet.cell(max_row, 1).value = entry.date.date()
     sheet.cell(max_row, 2).value = -1 * entry.sum
-    sheet.cell(max_row, 3).value = entry.cat_name
-    sheet.cell(max_row, 4).value = entry.cat_comment
+    if entry.cat_name != '':
+        sheet.cell(max_row, 3).value = entry.cat_name
+        sheet.cell(max_row, 4).value = entry.cat_comment
+    else:
+        sheet.cell(max_row, 5).value = entry.category
 
 
 def main(config_path):
